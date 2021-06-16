@@ -1,5 +1,5 @@
 import { Switch, Route } from 'react-router-dom';
-import { Home, Game, Leaderboard } from './views';
+import { /* Home, */ Game, Leaderboard } from './views';
 
 export const routes = (
   <Switch>
