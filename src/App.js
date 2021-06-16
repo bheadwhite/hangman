@@ -2,7 +2,7 @@ import { routes } from './routes';
 
 function App() {
   return (
-    <div>
+    <div style={{ height: '100%' }}>
       <div>Hangman</div>
 
       {routes}
