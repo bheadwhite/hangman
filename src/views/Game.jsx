@@ -1,7 +1,9 @@
 import React from 'react';
-// import { Button } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Hangman } from '../hangman/Hangman';
+import { connect } from 'react-redux';
+import { toggleHead } from '../redux/reducers';
 
 const useStyles = makeStyles({
   gameContainer: {
@@ -13,16 +15,22 @@ const useStyles = makeStyles({
   },
 });
 
-export const Game = () => {
+// export const Game = connect(/* read/mapStateToProps */ /* write/mapDispatchToProps */ )(() => {
+export const Game = connect(null, { toggleHead })((props) => {
   const classes = useStyles();
+
+  const toggleIsHead = () => {
+    props.toggleHead();
+  };
+
   return (
     <div className={classes.gameContainer}>
       <Hangman />
 
-      {/* <Button onClick={toggleHead}>toggle head</Button>
-      <Button onClick={toggleBody}>toggle body</Button>
+      <Button onClick={toggleIsHead}>toggle head</Button>
+      {/* <Button onClick={toggleBody}>toggle body</Button>
       <Button onClick={toggleArms}>toggle Arms</Button>
       <Button onClick={toggleLegs}>toggle Legs</Button> */}
     </div>
   );
-};
+});

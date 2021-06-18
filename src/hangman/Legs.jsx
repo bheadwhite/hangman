@@ -1,4 +1,5 @@
 import { makeStyles } from '@material-ui/core';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles({
   legs: {
@@ -9,28 +10,35 @@ const useStyles = makeStyles({
     position: 'absolute',
     marginTop: '208px',
   },
-  leftLeg: {
-    borderTop: '2px solid black',
+  leftLeg: ({ isLeftLeg }) => ({
+    borderTop: `2px solid ${isLeftLeg ? 'black' : 'rgba(0,0,0,0)'}`,
     transform: 'rotate(-52deg) translate(4px, 41px)',
-  },
-  rightLeg: {
+  }),
+  rightLeg: () => ({
     borderTop: '2px solid black',
     transform: 'rotate(53deg) translate(-3px, 41px)',
-  },
+  }),
 });
 
-export const Legs = () => {
+const mapStateToProps = (state) => {
+  return {
+    isLeftLeg: state.hangman.isLeftLeg,
+    isRightLeg: state.hangman.isRightLeg,
+  };
+};
+
+export const Legs = connect(mapStateToProps)((props) => {
   const classes = useStyles();
   return (
     <div className={classes.legs}>
-      <LeftLeg />
-      <RightLeg />
+      <LeftLeg {...props} />
+      <RightLeg {...props} />
     </div>
   );
-};
+});
 
-const LeftLeg = () => {
-  const classes = useStyles();
+const LeftLeg = (props) => {
+  const classes = useStyles({ isLeftLeg: props.isLeftLeg });
   return <div className={classes.leftLeg} />;
 };
 

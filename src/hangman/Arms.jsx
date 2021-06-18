@@ -18,6 +18,7 @@ const useStyles = makeStyles({
 
 export const Arms = () => {
   const classes = useStyles();
+
   return (
     <div className={classes.arms}>
       <LeftArm />
