@@ -1,20 +1,13 @@
 export const actions = {
   //hangman actions
   TOGGLE_HEAD: 'TOGGLE_HEAD',
-  //word actions
+  GUESS: 'GUESS',
+  //user actions
   SET_WORD: 'SET_WORD',
 };
 
-// actionCreators
-
-export const toggleHead = () => {
-  return {
-    type: actions.TOGGLE_HEAD,
-  };
-};
-
-const wordInitialState = {
-  word: '',
+const userInitialState = {
+  email: '',
 };
 
 const hangmanInitialState = {
@@ -24,10 +17,18 @@ const hangmanInitialState = {
   isBody: false,
   isLeftLeg: false,
   isRightLeg: false,
+  incorrectGuesses: [],
+  guessedLetters: [],
+  word: '',
+  gameOver: false,
 };
 
 export const hangmanReducer = (state = hangmanInitialState, action) => {
   switch (action.type) {
+    case actions.SET_WORD:
+      return { ...state, word: action.payload };
+    case actions.GUESS:
+      return { ...state, ...action.payload };
     case actions.TOGGLE_HEAD:
       return { ...state, isHead: !state.isHead };
     default:
@@ -35,10 +36,8 @@ export const hangmanReducer = (state = hangmanInitialState, action) => {
   }
 };
 
-export const wordReducer = (state = wordInitialState, action) => {
+export const userReducer = (state = userInitialState, action) => {
   switch (action.type) {
-    case actions.SET_WORD:
-      return { word: action.payload };
     default:
       return state;
   }

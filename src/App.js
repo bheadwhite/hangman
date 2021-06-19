@@ -8,17 +8,14 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    axios.get('/api/getWord').then(({ data }) => {
-      const [word] = data;
-
-      dispatch({ type: actions.SET_WORD, payload: word });
+    axios.get('/api/initGame').then(({ data }) => {
+      dispatch({ type: actions.SET_WORD, payload: data });
     });
   }, [dispatch]);
 
   return (
     <div style={{ height: '100%' }}>
       <div>Hangman</div>
-
       {routes}
     </div>
   );
