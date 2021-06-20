@@ -10,17 +10,33 @@ const useStyles = makeStyles({
   gameContainer: {
     display: 'grid',
     placeItems: 'center',
+    placeContent: 'center',
     height: '100%',
     background:
       'url(https://res.cloudinary.com/dshmwg7vw/image/upload/v1550486966/OCCNFD0.jpg)',
   },
+  gameTopSection: {
+    display: 'grid',
+    gridAutoFlow: 'column',
+    gridTemplateColumns: '1fr 1fr 1fr',
+    placeItems: 'center',
+  },
+  guesses: {
+    border: '1px solid black',
+    padding: '16px',
+    height: '100%',
+    width: '200px',
+  },
+  guessedLetter: {
+    fontSize: '35px',
+    marginRight: '8px',
+  },
 });
 
-// export const Game = connect(/* read/mapStateToProps */ /* write/mapDispatchToProps */ )(() => {
 export const Game = (props) => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { word, guessedLetters, incorrectGuesses } = useSelector(
+  const { word, guessedLetters, gameOver } = useSelector(
     (state) => state.hangman,
     shallowEqual,
   );
@@ -28,26 +44,52 @@ export const Game = (props) => {
 
   const makeGuess = () => {
     axios.post('/api/guess', { guess }).then(({ data }) => {
+      setGuess('');
       dispatch({ type: actions.GUESS, payload: data });
     });
   };
 
   const handleGuess = (e) => setGuess(e.target.value);
+  const handleKeyDown = (e) => {
+    const key = e.key;
+    if (key.toUpperCase() === 'ENTER') {
+      makeGuess();
+    }
+  };
 
   return (
     <div className={classes.gameContainer}>
+      <div className={classes.gameTopSection}>
+        <div className={classes.guesses}>
+          <h1 style={{ textAlign: 'center' }}>Letters</h1>
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            {guessedLetters.map((letter) => (
+              <span className={classes.guessedLetter} key={letter}>
+                {letter}
+              </span>
+            ))}
+          </div>
+        </div>
+        <Hangman />
+        <div>{/*  //feedback */}</div>
+      </div>
       <div>
-        guesses
+        <div style={{ letterSpacing: '7px', fontSize: '70px' }}>{word}</div>
         <div>
-          {guessedLetters.map((letter) => (
-            <span key={letter}>{letter}</span>
-          ))}
+          {gameOver ? (
+            <div>GAME OVER</div>
+          ) : (
+            <>
+              <TextField
+                value={guess}
+                onChange={handleGuess}
+                onKeyDown={handleKeyDown}
+              />
+              <Button onClick={makeGuess}>submit</Button>
+            </>
+          )}
         </div>
       </div>
-      <Hangman />
-      <TextField onChange={handleGuess} />
-      <Button onClick={makeGuess}>submit</Button>
-      <div style={{ letterSpacing: '7px', fontSize: '70px' }}>{word}</div>
     </div>
   );
 };

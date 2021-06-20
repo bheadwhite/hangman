@@ -1,16 +1,14 @@
 export const actions = {
   //hangman actions
-  TOGGLE_HEAD: 'TOGGLE_HEAD',
+  INIT_GAME: 'INIT_GAME',
   GUESS: 'GUESS',
-  //user actions
-  SET_WORD: 'SET_WORD',
 };
 
 const userInitialState = {
   email: '',
 };
 
-const hangmanInitialState = {
+const hangmanInitState = {
   isHead: false,
   isLeftArm: false,
   isRightArm: false,
@@ -23,14 +21,16 @@ const hangmanInitialState = {
   gameOver: false,
 };
 
-export const hangmanReducer = (state = hangmanInitialState, action) => {
+export const hangmanReducer = (state = hangmanInitState, action) => {
   switch (action.type) {
-    case actions.SET_WORD:
-      return { ...state, word: action.payload };
+    case actions.INIT_GAME:
+      return {
+        ...hangmanInitState,
+        ...action.payload,
+        ...getBodyParts(action.payload),
+      };
     case actions.GUESS:
-      return { ...state, ...action.payload };
-    case actions.TOGGLE_HEAD:
-      return { ...state, isHead: !state.isHead };
+      return { ...state, ...action.payload, ...getBodyParts(action.payload) };
     default:
       return state;
   }
@@ -41,4 +41,16 @@ export const userReducer = (state = userInitialState, action) => {
     default:
       return state;
   }
+};
+
+const getBodyParts = (hangmanGame) => {
+  const incorrect = hangmanGame.incorrectGuesses;
+  let parts = {};
+  if (incorrect >= 1) parts.isHead = true;
+  if (incorrect >= 2) parts.isBody = true;
+  if (incorrect >= 3) parts.isLeftArm = true;
+  if (incorrect >= 4) parts.isRightArm = true;
+  if (incorrect >= 5) parts.isLeftLeg = true;
+  if (incorrect >= 6) parts.isRightLeg = true;
+  return { ...parts };
 };

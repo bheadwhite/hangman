@@ -29,10 +29,20 @@ const isLetter = new RegExp(isLetterRegex);
 const getNewWord = () => {
   return new Promise((res, rej) => {
     return axios.get(WORD_URL).then((response) => {
-      console.log('res', response);
       res(response.data[0]);
     });
   });
+};
+
+const getGameState = (req) => {
+  const { word, incorrectGuesses } = req.session.hangman;
+  const gameState = {};
+  const converted = convertVisibleLetters(req);
+  gameState.word = converted;
+  gameState.gameOver = incorrectGuesses >= 6;
+  gameState.winner = word === converted;
+
+  return gameState;
 };
 
 const convertVisibleLetters = (req) => {
@@ -57,20 +67,18 @@ const convertVisibleLetters = (req) => {
 
 app.get('/api/initGame', async (req, res) => {
   if (req.session.hangman != null) {
-    res.status(200).send(convertVisibleLetters(req));
+    res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
   }
   const word = await getNewWord();
   req.session.hangman = { ...initHangmanState, word };
-  res.status(200).send(convertVisibleLetters(req));
+
+  res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
 });
 
 app.get('/api/newGame', async (req, res) => {
   const word = await getNewWord();
   req.session.hangman = { ...initHangmanState, word };
-  const payload = {
-    word: convertVisibleLetters(req),
-  };
-  res.status(200).send(payload);
+  res.status(200).send({ ...initHangmanState, ...getGameState(req) });
 });
 
 app.post('/api/guess', (req, res) => {
@@ -84,11 +92,12 @@ app.post('/api/guess', (req, res) => {
     guess.length !== 1 ||
     req.session.hangman.gameOver
   ) {
-    res.status(200).send({
+    return res.status(200).send({
+      ...req.session.hangman,
       failedAttempt: true,
       incorrectGuesses,
       guessedLetters,
-      word: convertVisibleLetters(req),
+      ...getGameState(req),
     });
   }
   //push letter to guessedLetters list
@@ -112,20 +121,21 @@ app.post('/api/guess', (req, res) => {
       );
 
     res.status(200).send({
+      ...req.session.hangman,
       ...response,
-      word: convertVisibleLetters(req),
       incorrectGuesses,
+      ...getGameState(req),
     });
   } else {
     //if wrong
     req.session.hangman.incorrectGuesses += 1;
 
     res.status(200).send({
+      ...req.session.hangman,
       failedAttempt: true,
       incorrectGuesses: req.session.hangman.incorrectGuesses,
       guessedLetters,
-      word: convertVisibleLetters(req),
-      gameOver: req.session.hangman.incorrectGuesses >= 6,
+      ...getGameState(req),
     });
   }
 });

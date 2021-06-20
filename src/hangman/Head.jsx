@@ -11,7 +11,27 @@ const useStyles = makeStyles({
 });
 
 export const Head = (props) => {
-  const isHead = useSelector((state) => state.hangman.isHead);
+  const { isHead, gameOver } = useSelector((state) => state.hangman);
   const classes = useStyles({ isHead });
-  return <div className={classes.head} />;
+  return (
+    <div className={classes.head}>
+      {gameOver && (
+        <>
+          <div
+            style={{
+              width: '100%',
+              display: 'grid',
+              gridAutoFlow: 'column',
+              height: '60px',
+              justifyContent: 'space-evenly',
+              alignItems: 'center',
+            }}>
+            <div>X</div>
+            <div>X</div>
+          </div>
+          <div style={{ borderTop: '1px solid black' }} />
+        </>
+      )}
+    </div>
+  );
 };
