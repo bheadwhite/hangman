@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { routes } from './routes';
 import { useDispatch } from 'react-redux';
 import { actions } from './redux/reducers';
-import { Button } from '@material-ui/core';
 import axios from 'axios';
 
 function App() {
@@ -14,21 +13,7 @@ function App() {
     });
   }, [dispatch]);
 
-  const handleNewGame = () =>
-    axios.get('/api/newGame').then(({ data }) => {
-      dispatch({ type: actions.INIT_GAME, payload: data });
-    });
-
-  return (
-    <div style={{ height: '100%' }}>
-      <div style={{ display: 'grid', gridAutoFlow: 'column' }}>
-        <Button style={{ justifySelf: 'flex-end' }} onClick={handleNewGame}>
-          New Game
-        </Button>
-      </div>
-      {routes}
-    </div>
-  );
+  return <div style={{ height: '100%' }}>{routes}</div>;
 }
 
 export default App;

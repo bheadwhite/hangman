@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
+import { SentimentSatisfiedOutlined } from '@material-ui/icons';
 
 const useStyles = makeStyles({
   head: ({ isHead }) => ({
@@ -11,10 +12,25 @@ const useStyles = makeStyles({
 });
 
 export const Head = (props) => {
-  const { isHead, gameOver } = useSelector((state) => state.hangman);
+  const { isHead, gameOver, winner } = useSelector(
+    (state) => state.hangman,
+    shallowEqual,
+  );
   const classes = useStyles({ isHead });
   return (
     <div className={classes.head}>
+      {winner && (
+        <SentimentSatisfiedOutlined
+          style={{
+            position: 'relative',
+            height: '111px',
+            width: '111px',
+            left: '-12px',
+            top: '-12px',
+          }}
+        />
+      )}
+
       {gameOver && (
         <>
           <div

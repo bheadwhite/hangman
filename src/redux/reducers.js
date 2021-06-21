@@ -30,6 +30,7 @@ export const hangmanReducer = (state = hangmanInitState, action) => {
         ...getBodyParts(action.payload),
       };
     case actions.GUESS:
+      console.log(action.payload);
       return { ...state, ...action.payload, ...getBodyParts(action.payload) };
     default:
       return state;

@@ -38,8 +38,12 @@ const getGameState = (req) => {
   const { word, incorrectGuesses } = req.session.hangman;
   const gameState = {};
   const converted = convertVisibleLetters(req);
+
+  if (incorrectGuesses >= 6) {
+    gameState.gameOver = true;
+    gameState.correctWord = req.session.hangman.word;
+  }
   gameState.word = converted;
-  gameState.gameOver = incorrectGuesses >= 6;
   gameState.winner = word === converted;
 
   return gameState;
@@ -68,6 +72,7 @@ const convertVisibleLetters = (req) => {
 app.get('/api/initGame', async (req, res) => {
   if (req.session.hangman != null) {
     res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
+    return;
   }
   const word = await getNewWord();
   req.session.hangman = { ...initHangmanState, word };
@@ -92,13 +97,14 @@ app.post('/api/guess', (req, res) => {
     guess.length !== 1 ||
     req.session.hangman.gameOver
   ) {
-    return res.status(200).send({
+    res.status(200).send({
       ...req.session.hangman,
       failedAttempt: true,
       incorrectGuesses,
       guessedLetters,
       ...getGameState(req),
     });
+    return;
   }
   //push letter to guessedLetters list
   guessedLetters.push(guess.toLowerCase());
@@ -126,6 +132,7 @@ app.post('/api/guess', (req, res) => {
       incorrectGuesses,
       ...getGameState(req),
     });
+    return;
   } else {
     //if wrong
     req.session.hangman.incorrectGuesses += 1;
@@ -137,6 +144,7 @@ app.post('/api/guess', (req, res) => {
       guessedLetters,
       ...getGameState(req),
     });
+    return;
   }
 });
 
