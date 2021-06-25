@@ -19,6 +19,7 @@ app.use(
       secure: false,
     },
   }),
+  express.static(`${__dirname}/../build`),
 );
 
 const PORT = 3001;
