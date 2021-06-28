@@ -10,6 +10,8 @@ const initHangmanState = {
   gameOver: false,
 };
 
+app.set('trust proxy', 1); // trust first proxy
+
 app.use(
   express.json(),
   session({
@@ -17,17 +19,17 @@ app.use(
     secret: 'asdlfkjasdlkfj',
     resave: false,
     cookie: {
-      secure: false,
+      secure: true,
     },
   }),
   express.static(path.join(__dirname, '..', 'build')),
 );
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
-});
+// app.get('/*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
+// });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 const WORD_URL = 'https://random-word-api.herokuapp.com/word?number=1';
 const isLetterRegex = /[a-zA-Z]/;
 const isLetter = new RegExp(isLetterRegex);
@@ -82,8 +84,6 @@ app.get(`/api/initGame`, async (req, res) => {
   }
   const word = await getNewWord();
   req.session.hangman = { ...initHangmanState, word };
-
-  console.log('word', word);
 
   res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
 });
