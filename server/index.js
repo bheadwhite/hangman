@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
+require('dotenv').config();
 const axios = require('axios');
 const session = require('express-session');
 const path = require('path');
+
+const { MY_LOCAL_DEVELOPMENT } = process.env;
 
 const initHangmanState = {
   guessedLetters: [],
@@ -10,7 +13,9 @@ const initHangmanState = {
   gameOver: false,
 };
 
-app.set('trust proxy', 1); // trust first proxy
+!MY_LOCAL_DEVELOPMENT && app.set('trust proxy', 1); // trust first proxy
+
+console.log(!MY_LOCAL_DEVELOPMENT);
 
 app.use(
   express.json(),
@@ -19,15 +24,11 @@ app.use(
     secret: 'asdlfkjasdlkfj',
     resave: false,
     cookie: {
-      secure: true,
+      secure: Boolean(!MY_LOCAL_DEVELOPMENT),
     },
   }),
   express.static(path.join(__dirname, '..', 'build')),
 );
-
-// app.get('/*', (req, res) => {
-//   res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
-// });
 
 const PORT = process.env.PORT || 8080;
 const WORD_URL = 'https://random-word-api.herokuapp.com/word?number=1';
@@ -98,7 +99,6 @@ app.post(`/api/guess`, (req, res) => {
   const { guess } = req.body;
   const { incorrectGuesses, word, guessedLetters } = req.session.hangman;
   // if the guess was already guessed
-  console.log('guess', guess, 'session.hangman', req.session.hangman);
   if (
     guessedLetters.includes(guess) ||
     guess.toString().trim() === '' ||

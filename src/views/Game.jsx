@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useIsMobileScreen } from '../hooks/useIsMobileScreen';
 import { Hangman } from '../hangman/Hangman';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { TextField, Button } from '@material-ui/core';
@@ -7,14 +8,14 @@ import { actions } from '../redux/reducers';
 import axios from 'axios';
 
 const useStyles = makeStyles({
-  gameContainer: {
+  gameContainer: (theme) => ({
     display: 'grid',
     placeItems: 'center',
     placeContent: 'center',
     height: '100%',
     background:
       'url(https://res.cloudinary.com/dshmwg7vw/image/upload/v1550486966/OCCNFD0.jpg)',
-  },
+  }),
   header: {
     position: 'absolute',
     top: 0,
@@ -24,18 +25,18 @@ const useStyles = makeStyles({
     gridAutoFlow: 'column',
     gridTemplateColumns: '1fr 1fr 1fr',
   },
-  gameTopSection: {
+  gameTopSection: (theme) => ({
     display: 'grid',
     gridAutoFlow: 'column',
-    gridTemplateColumns: '1fr 1fr 1fr',
+    gridTemplateColumns: theme.smSize ? '1fr' : '1fr 1fr 1fr',
     placeItems: 'center',
-  },
-  guesses: {
+  }),
+  guesses: (theme) => ({
     padding: '16px',
     width: '200px',
     background: 'rgba(0,0,0,0.05)',
-    minHeight: '200px',
-  },
+    minHeight: theme.isMobile ? '156px' : '200px',
+  }),
   guessedLetter: {
     fontSize: '35px',
     marginRight: '8px',
@@ -43,73 +44,40 @@ const useStyles = makeStyles({
   bottomSection: {
     width: '100%',
     textAlign: 'center',
+    marginTop: '40px',
   },
 });
 
 export const Game = (props) => {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const { word, guessedLetters } = useSelector(
-    (state) => state.hangman,
-    shallowEqual,
-  );
-
-  const handleNewGame = () =>
-    axios.get(`/api/newGame`).then(({ data }) => {
-      dispatch({ type: actions.INIT_GAME, payload: data });
-    });
+  const { word } = useSelector((state) => state.hangman, shallowEqual);
+  const isMobile = useIsMobileScreen();
+  const classes = useStyles({ smSize: isMobile });
 
   return (
     <div className={classes.gameContainer}>
-      <div className={classes.header}>
-        <div>{/* logo */}</div>
+      <Header />
+      {isMobile && (
         <div
           style={{
             display: 'grid',
-            placeItems: 'center',
-            fontSize: '45px',
-            fontFamily: 'lato',
+            gridAutoFlow: 'column',
+            gridTemplateColumns: '1fr 1fr',
+            border: '1px solid rgba(0,0,0,0.5)',
           }}>
-          HANGMAN
+          <GuessesOverlay />
+          <FeedbackOverlay />
         </div>
-        <Button
-          style={{
-            justifySelf: 'flex-end',
-            background: 'lightgrey',
-          }}
-          onClick={handleNewGame}>
-          New Game
-        </Button>
-      </div>
+      )}
       <div className={classes.gameTopSection}>
-        <div className={classes.guesses}>
-          <h2
-            style={{
-              textAlign: 'center',
-              margin: 0,
-              borderBottom: '1px solid black',
-            }}>
-            Guessed Letters
-          </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-            {guessedLetters.map((letter) => (
-              <span className={classes.guessedLetter} key={letter}>
-                {letter}
-              </span>
-            ))}
-          </div>
-        </div>
+        {!isMobile && <GuessesOverlay />}
         <Hangman />
-        <div style={{}}>
-          <Winner />
-          <GameOver />
-        </div>
+        {!isMobile && <FeedbackOverlay />}
       </div>
       <div className={classes.bottomSection}>
         <div
           style={{
             letterSpacing: '12px',
-            fontSize: '70px',
+            fontSize: isMobile ? '37px' : '70px',
             marginBottom: '16px',
             fontWeight: '300',
           }}>
@@ -198,5 +166,76 @@ const GuessLetter = () => {
         submit
       </Button>
     </React.Fragment>
+  );
+};
+
+const GuessesOverlay = () => {
+  const isMobile = useIsMobileScreen();
+  const classes = useStyles({ isMobile });
+  const { guessedLetters } = useSelector(
+    (state) => state.hangman,
+    shallowEqual,
+  );
+
+  return (
+    <div className={classes.guesses}>
+      <h2
+        style={{
+          textAlign: 'center',
+          margin: 0,
+          borderBottom: '1px solid black',
+        }}>
+        Guessed Letters
+      </h2>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {guessedLetters.map((letter) => (
+          <span className={classes.guessedLetter} key={letter}>
+            {letter}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const FeedbackOverlay = () => {
+  return (
+    <div>
+      <Winner />
+      <GameOver />
+    </div>
+  );
+};
+
+const Header = () => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+
+  const handleNewGame = () =>
+    axios.get(`/api/newGame`).then(({ data }) => {
+      dispatch({ type: actions.INIT_GAME, payload: data });
+    });
+
+  return (
+    <div className={classes.header}>
+      <div>{/* logo */}</div>
+      <div
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          fontSize: '45px',
+          fontFamily: 'lato',
+        }}>
+        HANGMAN
+      </div>
+      <Button
+        style={{
+          justifySelf: 'flex-end',
+          background: 'lightgrey',
+        }}
+        onClick={handleNewGame}>
+        New Game
+      </Button>
+    </div>
   );
 };

@@ -1,38 +1,41 @@
 import { makeStyles } from '@material-ui/core/styles';
+import { useIsMobileScreen } from '../hooks/useIsMobileScreen';
 
 const useStyles = makeStyles({
-  container: {
-    width: '328px',
-    height: '415px',
+  container: ({ isMobile }) => ({
+    width: isMobile ? '291px' : '328px',
+    height: isMobile ? '200px' : '415px',
     position: 'relative',
     padding: '16px',
-  },
-  top: {
+  }),
+  top: ({ isMobile }) => ({
     borderTop: '4px solid black',
     borderRight: '4px solid black',
     borderLeft: '4px solid black',
     position: 'absolute',
     left: '90px',
-    width: '138px',
-    height: '46px',
-  },
+    width: isMobile ? '79px' : '138px',
+    height: isMobile ? '26px' : '46px',
+  }),
   body: {
     display: 'grid',
     gridAutoFlow: 'column',
+    gridTemplateColumns: 'auto 1fr',
   },
-  scaffold: {
+  scaffold: (theme) => ({
     borderRight: '4px solid black',
-    height: '380px',
+    height: theme.isMobile ? '200px' : '380px',
     width: '78px',
-  },
-  footing: {
+  }),
+  footing: ({ isMobile }) => ({
     borderTop: '4px solid black',
-    width: '215px',
-  },
+    width: isMobile ? '131px' : '215px',
+  }),
 });
 
 export const Gallow = ({ children }) => {
-  const classes = useStyles();
+  const isMobile = useIsMobileScreen();
+  const classes = useStyles({ isMobile });
   return (
     <div className={classes.container}>
       <div className={classes.top}></div>

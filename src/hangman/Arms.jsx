@@ -1,15 +1,16 @@
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
+import { useIsMobileScreen } from '../hooks/useIsMobileScreen';
 
 const useStyles = makeStyles({
-  arms: {
-    height: '125px',
-    width: '120px',
+  arms: ({ isMobile }) => ({
+    height: isMobile ? '59px' : '125px',
+    width: isMobile ? '66px' : '120px',
     position: 'absolute',
     display: 'grid',
     gridAutoFlow: 'column',
     placeItems: 'center stretch',
-  },
+  }),
   arm: {
     height: '100%',
     borderBottom: '2px solid black',
@@ -18,8 +19,9 @@ const useStyles = makeStyles({
 });
 
 export const Arms = () => {
+  const isMobile = useIsMobileScreen();
   const { isLeftArm, isRightArm } = useSelector((state) => state.hangman);
-  const classes = useStyles();
+  const classes = useStyles({ isMobile });
 
   return (
     <div className={classes.arms}>

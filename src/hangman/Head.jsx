@@ -1,22 +1,24 @@
 import { makeStyles } from '@material-ui/core';
 import { useSelector, shallowEqual } from 'react-redux';
+import { useIsMobileScreen } from '../hooks/useIsMobileScreen';
 import { SentimentSatisfiedOutlined } from '@material-ui/icons';
 
 const useStyles = makeStyles({
-  head: ({ isHead }) => ({
-    height: '90px',
-    width: '90px',
+  head: ({ isHead, isMobile }) => ({
+    height: isMobile ? '47px' : '90px',
+    width: isMobile ? '47px' : '90px',
     borderRadius: '100%',
     border: `2px solid ${isHead ? 'black' : 'rgba(0,0,0,0)'}`,
   }),
 });
 
 export const Head = (props) => {
+  const isMobile = useIsMobileScreen();
   const { isHead, gameOver, winner } = useSelector(
     (state) => state.hangman,
     shallowEqual,
   );
-  const classes = useStyles({ isHead });
+  const classes = useStyles({ isHead, isMobile });
   return (
     <div className={classes.head}>
       {winner && (
