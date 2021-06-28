@@ -8,7 +8,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    axios.get('/api/initGame').then(({ data }) => {
+    axios.get(`/api/initGame`).then(({ data }) => {
       dispatch({ type: actions.INIT_GAME, payload: data });
     });
   }, [dispatch]);

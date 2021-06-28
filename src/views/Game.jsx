@@ -55,7 +55,7 @@ export const Game = (props) => {
   );
 
   const handleNewGame = () =>
-    axios.get('/api/newGame').then(({ data }) => {
+    axios.get(`/api/newGame`).then(({ data }) => {
       dispatch({ type: actions.INIT_GAME, payload: data });
     });
 
@@ -166,7 +166,7 @@ const GuessLetter = () => {
   );
 
   const makeGuess = () => {
-    axios.post('/api/guess', { guess }).then(({ data }) => {
+    axios.post(`/api/guess`, { guess }).then(({ data }) => {
       setGuess('');
       dispatch({ type: actions.GUESS, payload: data });
     });

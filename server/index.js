@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const axios = require('axios');
 const session = require('express-session');
+const path = require('path');
 
 const initHangmanState = {
   guessedLetters: [],
@@ -19,10 +20,14 @@ app.use(
       secure: false,
     },
   }),
-  express.static(`${__dirname}/../build`),
+  express.static(path.join(__dirname, '..', 'build')),
 );
 
-const PORT = 3001;
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3001;
 const WORD_URL = 'https://random-word-api.herokuapp.com/word?number=1';
 const isLetterRegex = /[a-zA-Z]/;
 const isLetter = new RegExp(isLetterRegex);
@@ -70,7 +75,7 @@ const convertVisibleLetters = (req) => {
 
 //head body right left right left
 
-app.get('/api/initGame', async (req, res) => {
+app.get(`/api/initGame`, async (req, res) => {
   if (req.session.hangman != null) {
     res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
     return;
@@ -78,19 +83,22 @@ app.get('/api/initGame', async (req, res) => {
   const word = await getNewWord();
   req.session.hangman = { ...initHangmanState, word };
 
+  console.log('word', word);
+
   res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
 });
 
-app.get('/api/newGame', async (req, res) => {
+app.get(`/api/newGame`, async (req, res) => {
   const word = await getNewWord();
   req.session.hangman = { ...initHangmanState, word };
   res.status(200).send({ ...initHangmanState, ...getGameState(req) });
 });
 
-app.post('/api/guess', (req, res) => {
+app.post(`/api/guess`, (req, res) => {
   const { guess } = req.body;
   const { incorrectGuesses, word, guessedLetters } = req.session.hangman;
   // if the guess was already guessed
+  console.log('guess', guess, 'session.hangman', req.session.hangman);
   if (
     guessedLetters.includes(guess) ||
     guess.toString().trim() === '' ||
