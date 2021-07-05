@@ -9,7 +9,10 @@ function App() {
 
   useEffect(() => {
     axios.get(`/api/initGame`).then(({ data }) => {
-      dispatch({ type: actions.INIT_GAME, payload: data });
+      dispatch({
+        type: actions.INIT_GAME,
+        payload: { ...data },
+      });
     });
   }, [dispatch]);
 

@@ -3,7 +3,7 @@ import { Game, Leaderboard } from './views';
 
 export const routes = (
   <Switch>
-    <Route path='/' component={Game} />
+    <Route path='/' exact component={Game} />
     <Route path='/leaderboard' component={Leaderboard} />
   </Switch>
 );

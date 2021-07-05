@@ -19,6 +19,7 @@ const hangmanInitState = {
   guessedLetters: [],
   word: '',
   gameOver: false,
+  winner: false,
 };
 
 export const hangmanReducer = (state = hangmanInitState, action) => {

@@ -1,0 +1,1 @@
+insert into leaderboard (name, points, word) values (${name}, ${points}, ${word});

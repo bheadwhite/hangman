@@ -6,6 +6,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { TextField, Button } from '@material-ui/core';
 import { actions } from '../redux/reducers';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles({
   gameContainer: (theme) => ({
@@ -33,14 +34,14 @@ const useStyles = makeStyles({
   }),
   guesses: (theme) => ({
     padding: '16px',
-    width: '200px',
+    width: theme.isMobile ? '144px' : '200px',
     background: 'rgba(0,0,0,0.05)',
     minHeight: theme.isMobile ? '156px' : '200px',
   }),
-  guessedLetter: {
-    fontSize: '35px',
+  guessedLetter: ({ isMobile }) => ({
+    fontSize: isMobile ? '20px' : '35px',
     marginRight: '8px',
-  },
+  }),
   bottomSection: {
     width: '100%',
     textAlign: 'center',
@@ -49,7 +50,7 @@ const useStyles = makeStyles({
 });
 
 export const Game = (props) => {
-  const { word } = useSelector((state) => state.hangman, shallowEqual);
+  const { convertedWord } = useSelector((state) => state.hangman, shallowEqual);
   const isMobile = useIsMobileScreen();
   const classes = useStyles({ smSize: isMobile });
 
@@ -60,12 +61,9 @@ export const Game = (props) => {
         <div
           style={{
             display: 'grid',
-            gridAutoFlow: 'column',
-            gridTemplateColumns: '1fr 1fr',
-            border: '1px solid rgba(0,0,0,0.5)',
           }}>
-          <GuessesOverlay />
           <FeedbackOverlay />
+          <GuessesOverlay />
         </div>
       )}
       <div className={classes.gameTopSection}>
@@ -81,7 +79,7 @@ export const Game = (props) => {
             marginBottom: '16px',
             fontWeight: '300',
           }}>
-          {word}
+          {convertedWord}
         </div>
         <GuessLetter />
       </div>
@@ -92,6 +90,7 @@ export const Game = (props) => {
 const GameOver = () => {
   const correctWord = useSelector((state) => state.hangman.correctWord);
   const isGameOver = useSelector((state) => state.hangman.gameOver);
+
   if (!isGameOver) {
     return null;
   }
@@ -112,15 +111,52 @@ const GameOver = () => {
 
 const Winner = () => {
   const isWinner = useSelector((state) => state.hangman.winner);
+  const [winnerName, setWinnerName] = React.useState('');
+  const history = useHistory();
+
+  const handleScoreSubmit = () => {
+    if (winnerName.trim() === '') {
+      return;
+    }
+    axios.post('/api/newLeader', { name: winnerName }).then(() => {
+      history.push('/leaderboard');
+    });
+  };
+  const handleKeyDown = (e) => {
+    const key = e.key.toUpperCase();
+    const code = e.keyCode;
+
+    if (key === 'ENTER' || code === 13) {
+      handleScoreSubmit();
+    }
+  };
 
   if (!isWinner) {
     return null;
   }
 
   return (
-    <div style={{ background: 'rgba(0,0,0,0.05)', padding: '8px' }}>
+    <div
+      style={{
+        background: '#fff',
+        padding: '8px',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+      }}>
       <h2>Congratulations, you've won!!!</h2>
-      {/* <div>Enter your name to register this game on the leaderboard.</div> */}
+      <div>
+        Please enter your name to save your score.
+        <input
+          type='text'
+          autoFocus
+          value={winnerName}
+          onChange={(e) => setWinnerName(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <Button onClick={handleScoreSubmit}>Submit</Button>
+      </div>
     </div>
   );
 };
@@ -143,7 +179,8 @@ const GuessLetter = () => {
   const handleGuess = (e) => setGuess(e.target.value);
   const handleKeyDown = (e) => {
     const key = e.key;
-    if (key.toUpperCase() === 'ENTER') {
+    const code = e.keyCode;
+    if (key.toUpperCase() === 'ENTER' || code === 13) {
       makeGuess();
     }
   };
@@ -159,7 +196,7 @@ const GuessLetter = () => {
         onChange={handleGuess}
         onKeyDown={handleKeyDown}
         style={{ background: '#fff' }}
-        inputProps={{ style: { padding: '8px' } }}
+        inputProps={{ style: { padding: '8px' }, autoCapitalize: 'none' }}
         variant='outlined'
       />
       <Button style={{ background: 'lightgrey' }} onClick={makeGuess}>
@@ -169,7 +206,7 @@ const GuessLetter = () => {
   );
 };
 
-const GuessesOverlay = () => {
+const GuessesOverlay = ({ styles }) => {
   const isMobile = useIsMobileScreen();
   const classes = useStyles({ isMobile });
   const { guessedLetters } = useSelector(
@@ -178,7 +215,7 @@ const GuessesOverlay = () => {
   );
 
   return (
-    <div className={classes.guesses}>
+    <div className={classes.guesses} style={styles}>
       <h2
         style={{
           textAlign: 'center',
@@ -213,7 +250,7 @@ const Header = () => {
 
   const handleNewGame = () =>
     axios.get(`/api/newGame`).then(({ data }) => {
-      dispatch({ type: actions.INIT_GAME, payload: data });
+      dispatch({ type: actions.INIT_GAME, payload: { ...data } });
     });
 
   return (

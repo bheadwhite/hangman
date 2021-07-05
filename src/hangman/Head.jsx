@@ -25,8 +25,8 @@ export const Head = (props) => {
         <SentimentSatisfiedOutlined
           style={{
             position: 'relative',
-            height: '111px',
-            width: '111px',
+            height: isMobile ? '63px' : '111px',
+            width: isMobile ? '67px' : '111px',
             left: '-12px',
             top: '-12px',
           }}
@@ -40,7 +40,7 @@ export const Head = (props) => {
               width: '100%',
               display: 'grid',
               gridAutoFlow: 'column',
-              height: '60px',
+              height: isMobile ? '30px' : '60px',
               justifyContent: 'space-evenly',
               alignItems: 'center',
             }}>

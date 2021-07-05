@@ -7330,10 +7330,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-massive@^6.9.0:
-  version "6.9.0"
-  resolved "https://registry.yarnpkg.com/massive/-/massive-6.9.0.tgz#c72525ac3ebde1a11559fbaa88a49190af2ac281"
-  integrity sha512-MbZhxUGG7pVkR/SvOAv572AXoY7HE3ed4P4XZ9e119hBQQwt4oFN+zSa8oLKd6A10VPdTK6q7Y8+XK72j/Bnng==
+massive@^6.9.1:
+  version "6.9.1"
+  resolved "https://registry.yarnpkg.com/massive/-/massive-6.9.1.tgz#a18545e621b38eb3d6302aaad059efedcf1ad650"
+  integrity sha512-sRfJypImfx/m+uAeuuTe/aqBgGObuawHnzVmgdFZssQBDQ/nO3Nq9URqyCcJ3lqtmPJR9wK/yTQ9Q2I77P4KIA==
   dependencies:
     commander "7.2.0"
     glob "7.1.7"
