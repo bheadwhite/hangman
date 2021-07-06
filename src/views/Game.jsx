@@ -67,9 +67,9 @@ export const Game = (props) => {
         </div>
       )}
       <div className={classes.gameTopSection}>
-        {!isMobile && <GuessesOverlay />}
-        <Hangman />
         {!isMobile && <FeedbackOverlay />}
+        <Hangman />
+        {!isMobile && <GuessesOverlay />}
       </div>
       <div className={classes.bottomSection}>
         <div

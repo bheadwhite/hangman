@@ -25,38 +25,35 @@ const newGame = async (req, res) => {
 
 const guess = (req, res) => {
   const { guess } = req.body;
+  const hangman = req.session.hangman;
 
-  if (
-    req.session.hangman == null ||
-    req.session.hangman.incorrectGuesses == null
-  ) {
-    res.status(400).send(req.session.hangman, req.session);
+  if (hangman == null || hangman.incorrectGuesses == null) {
+    res.status(400).send({ ...hangman, session: req.session });
   }
 
-  const { incorrectGuesses, guessedLetters } = req.session.hangman;
+  const { guessedLetters } = hangman;
   const wordToGuess = req.session.wordToGuess;
 
-  // if the guess was already guessed
+  // if the guess was already guessed or
+  // if the guess is not correct format
   if (
     guessedLetters.includes(guess) ||
     guess.toString().trim() === '' ||
     !isLetter.test(guess) ||
     guess.length !== 1 ||
-    req.session.hangman.gameOver
+    hangman.gameOver
   ) {
     req.session.hangman = {
-      ...req.session.hangman,
-      failedAttempt: true,
-      incorrectGuesses,
-      guessedLetters,
       ...getGameState(req),
+      failedAttempt: true,
     };
-    res.status(200).send(req.session.hangman);
-    return;
+    return res.status(200).send(req.session.hangman);
   }
+
   //push letter to guessedLetters list
   guessedLetters.push(guess.toLowerCase());
 
+  //if correct answer
   if (wordToGuess.toLowerCase().includes(guess.toLowerCase())) {
     const response = wordToGuess
       .toLowerCase()
@@ -72,32 +69,30 @@ const guess = (req, res) => {
           return a;
         },
         {
-          ...req.session.hangman,
           failedAttempt: false,
           guessedLetters,
         },
       );
 
+    hangman.points += 20;
+
     req.session.hangman = {
-      ...req.session.hangman,
-      ...response,
-      incorrectGuesses,
       ...getGameState(req),
+      ...response,
     };
 
-    res.status(200).send(req.session.hangman);
-    return;
+    return res.status(200).send({ ...req.session.hangman });
   } else {
     //if wrong
+
+    hangman.incorrectGuesses += 1;
+
     req.session.hangman = {
-      ...req.session.hangman,
-      failedAttempt: true,
-      incorrectGuesses: ++req.session.hangman.incorrectGuesses,
-      guessedLetters,
       ...getGameState(req),
+      failedAttempt: true,
     };
-    res.status(200).send(req.session.hangman);
-    return;
+
+    return res.status(200).send({ ...req.session.hangman });
   }
 };
 
@@ -114,7 +109,6 @@ const initHangmanState = {
   gameOver: false,
   points: 0,
   winner: false,
-  wordDisplay: '',
   correctWord: undefined,
 };
 
@@ -128,7 +122,9 @@ function calculateBonus(hangmanState) {
 function getGameState(req) {
   const incorrectGuesses = req.session.hangman?.incorrectGuesses ?? 0;
   const wordToGuess = req.session.wordToGuess;
-  const gameState = {};
+  const gameState = {
+    ...req.session.hangman,
+  };
   const converted = convertVisibleLetters(req);
 
   if (incorrectGuesses >= 6) {
