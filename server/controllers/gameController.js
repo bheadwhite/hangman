@@ -45,7 +45,7 @@ function guess(req, res) {
     res.status(400).send({ ...hangman, session: req.session });
   }
 
-  const { guessedLetters } = hangman;
+  const guessedLetters = hangman.guessedLetters ?? [];
   const wordToGuess = req.session.wordToGuess;
 
   // if the guess was already guessed or

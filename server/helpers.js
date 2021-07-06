@@ -10,6 +10,7 @@ module.exports = {
   getNewWord,
   calculateBonus,
 };
+
 //helpers
 function getGameState(req) {
   const incorrectGuesses = req.session.hangman?.incorrectGuesses ?? 0;
