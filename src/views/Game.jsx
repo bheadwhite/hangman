@@ -29,8 +29,9 @@ const useStyles = makeStyles({
   gameTopSection: (theme) => ({
     display: 'grid',
     gridAutoFlow: 'column',
-    gridTemplateColumns: theme.smSize ? '1fr' : '1fr 1fr 1fr',
+    gridTemplateColumns: theme.smSize ? '1fr 1fr' : '1fr 1fr 1fr',
     placeItems: 'center',
+    gridGap: theme.smSize ? '48px' : '10px',
   }),
   guesses: (theme) => ({
     padding: '16px',
@@ -57,19 +58,11 @@ export const Game = (props) => {
   return (
     <div className={classes.gameContainer}>
       <Header />
-      {isMobile && (
-        <div
-          style={{
-            display: 'grid',
-          }}>
-          <FeedbackOverlay />
-          <GuessesOverlay />
-        </div>
-      )}
+      {isMobile && <FeedbackOverlay />}
       <div className={classes.gameTopSection}>
         {!isMobile && <FeedbackOverlay />}
         <Hangman />
-        {!isMobile && <GuessesOverlay />}
+        <GuessesOverlay />
       </div>
       <div className={classes.bottomSection}>
         <div
@@ -144,6 +137,7 @@ const Winner = () => {
         top: 0,
         left: 0,
         right: 0,
+        zIndex: 1,
       }}>
       <h2>Congratulations, you've won!!!</h2>
       <div>

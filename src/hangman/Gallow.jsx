@@ -3,7 +3,7 @@ import { useIsMobileScreen } from '../hooks/useIsMobileScreen';
 
 const useStyles = makeStyles({
   container: ({ isMobile }) => ({
-    width: isMobile ? '291px' : '328px',
+    width: isMobile ? '165px' : '328px',
     height: isMobile ? '200px' : '415px',
     position: 'relative',
     padding: '16px',

@@ -1,12 +1,26 @@
-const axios = require('axios');
-const WORD_URL = 'https://random-word-form.herokuapp.com/random/noun/a';
-const isLetterRegex = /[a-zA-Z]/;
-const isLetter = new RegExp(isLetterRegex);
+const { getGameState, getNewWord, isLetter } = require('../helpers');
+
+const initHangmanState = {
+  guessedLetters: [],
+  incorrectGuesses: 0,
+  failedAttempt: false,
+  gameOver: false,
+  points: 0,
+  winner: false,
+  correctWord: undefined,
+};
+
+module.exports = {
+  initGame,
+  newGame,
+  guess,
+};
 
 //routes
-const initGame = async (req, res) => {
-  if (req.session.hangman != null && req.session.wordToGuess != null) {
-    res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
+async function initGame(req, res) {
+  const hangman = req.session.hangman;
+  if (hangman != null && req.session.wordToGuess != null) {
+    res.status(200).send({ ...hangman, ...getGameState(req) });
     return;
   }
   const wordToGuess = await getNewWord();
@@ -14,16 +28,16 @@ const initGame = async (req, res) => {
   req.session.hangman = { ...initHangmanState, ...getGameState(req) };
 
   res.status(200).send({ ...req.session.hangman });
-};
+}
 
-const newGame = async (req, res) => {
+async function newGame(req, res) {
   const wordToGuess = await getNewWord();
   req.session.wordToGuess = wordToGuess;
   req.session.hangman = { ...initHangmanState };
   res.status(200).send({ ...req.session.hangman, ...getGameState(req) });
-};
+}
 
-const guess = (req, res) => {
+function guess(req, res) {
   const { guess } = req.body;
   const hangman = req.session.hangman;
 
@@ -94,85 +108,4 @@ const guess = (req, res) => {
 
     return res.status(200).send({ ...req.session.hangman });
   }
-};
-
-module.exports = {
-  initGame,
-  newGame,
-  guess,
-};
-
-const initHangmanState = {
-  guessedLetters: [],
-  incorrectGuesses: 0,
-  failedAttempt: false,
-  gameOver: false,
-  points: 0,
-  winner: false,
-  correctWord: undefined,
-};
-
-function calculateBonus(hangmanState) {
-  //50 points bonus for each body part remaining on hangman
-  const bodyPartsRemaining = 6 - hangmanState.incorrectGuesses;
-  return bodyPartsRemaining * 50;
-}
-
-//helpers
-function getGameState(req) {
-  const incorrectGuesses = req.session.hangman?.incorrectGuesses ?? 0;
-  const wordToGuess = req.session.wordToGuess;
-  const gameState = {
-    ...req.session.hangman,
-  };
-  const converted = convertVisibleLetters(req);
-
-  if (incorrectGuesses >= 6) {
-    gameState.gameOver = true;
-    gameState.correctWord = req.session.wordToGuess;
-  }
-
-  gameState.convertedWord = converted;
-  gameState.winner = wordToGuess === converted;
-
-  if (gameState.winner) {
-    const bonus = calculateBonus(req.session.hangman);
-    const points = bonus + req.session.hangman.points;
-    gameState.points = points;
-  }
-
-  return gameState;
-}
-
-function convertVisibleLetters(req) {
-  const guessedLetters = req.session.hangman?.guessedLetters ?? [];
-  const wordToGuess = req.session.wordToGuess ?? '';
-  const visible = wordToGuess
-    .split('')
-    .map((i) => {
-      if (i.trim() === '') {
-        return `&nbsp`;
-      }
-
-      if (!isLetter.test(i)) {
-        return i;
-      }
-
-      if (guessedLetters.includes(i.toLowerCase())) {
-        return i;
-      } else {
-        return '_';
-      }
-    })
-    .join('');
-
-  return visible;
-}
-
-function getNewWord() {
-  return new Promise((res, rej) => {
-    return axios.get(WORD_URL).then((response) => {
-      res(response.data[0]);
-    });
-  });
 }
